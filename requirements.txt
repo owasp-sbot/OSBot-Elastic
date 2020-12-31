@@ -1,0 +1,10 @@
+elasticsearch
+python-dotenv
+boto3
+git+https://github.com/owasp-sbot/OSBot-Utils.git
+git+https://github.com/owasp-sbot/OSBot-AWS.git
+
+# for development
+pytest
+pytest-cov
+coveralls
