@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    version                       = "0.5.0"               , # change this on every release
+    version                       = "0.5.1"               , # change this on every release
     name                          = "osbot_elastic"  ,
     author                        = "Dinis Cruz",
     author_email                  = "dinis.cruz@owasp.org",
