@@ -1,7 +1,7 @@
 import  datetime
 import pprint
 
-from gw_bot.elastic.Elastic_Search import Elastic_Search
+from osbot_elastic.Elastic_Search import Elastic_Search
 
 
 class Log_To_Elk:

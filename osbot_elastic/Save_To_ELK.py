@@ -1,6 +1,6 @@
 import  datetime
 
-from gw_bot.elastic.Elastic_Search import Elastic_Search
+from osbot_elastic.Elastic_Search import Elastic_Search
 
 
 class Save_To_ELK():

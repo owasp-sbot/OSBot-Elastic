@@ -12,6 +12,8 @@ from    osbot_utils.utils.Http                  import DELETE
 # {
 # "index.max_result_window" : "100000"
 # }
+from osbot_elastic.Env import Env
+from osbot_elastic.api.Index import Index
 
 
 class Elastic_Search:
@@ -21,11 +23,17 @@ class Elastic_Search:
         self._setup_Elastic_on_localhost()                  # default to localhost
         self.kibana         = None
         self.host           = None
+        self.port           = None
         self._result        = None                          # used to cache some responses (for methods that return self)
 
         if index and aws_secret_id:
             self._setup_Elastic_on_cloud_via_AWS_Secret(index, aws_secret_id)
 
+    def api_index(self):
+        return Index(self.es, self.index)
+
+
+    #todo refactor these setup methods
     def _setup_Elastic_on_localhost(self):
         self.host   = 'localhost'
         self.port   = 9200
@@ -52,6 +60,16 @@ class Elastic_Search:
         self.es       = Elasticsearch([host], http_auth=(username, password),scheme="https", port=port)
         return self
 
+    def _setup_using_env_variables(self):
+        server_config   = Env().get_elastic_server_config()
+        self.host       = server_config['host'    ]
+        self.kibana     = server_config['kibana'  ]
+        self.username   = server_config['username']
+        self.password   = server_config['password']
+        self.port       = server_config['port'    ]
+        self.scheme     = 'https'
+        self.es = Elasticsearch([self.host], http_auth=(self.username, self.password), scheme="https", port=self.port)
+        return self
 
     def add_data_with_timestamp(self,data):
         data["@timestamp"] = self.timestamp
@@ -90,9 +108,9 @@ class Elastic_Search:
                 ok, _ = helpers.bulk(self.es, actions, index=self.index, pipeline=pipeline)
         return ok
 
-    def create_index(self,body = {}):
+    def create_index(self,body = None):
         if self.exists() is False:
-            self._result = self.es.indices.create(index=self.index, body=body)
+            self._result = self.api_index().create(body)
         return self
 
     def create_index_with_location_geo_point(self,field = "location"):
@@ -117,15 +135,14 @@ class Elastic_Search:
             payload= {"attributes":{"title": self.index ,"fields":"[]"}}
         data     = json.dumps(payload)
         headers  = {'Content-Type': 'application/json', 'kbn-xsrf' : 'kibana'}
-        url      = f'https://{self.kibana}:9243/api/saved_objects/index-pattern'
+        url      = f'https://{self.kibana}:{self.port}/api/saved_objects/index-pattern' # todo refactor into POST method
         response = requests.post(url, data, headers=headers, auth=HTTPBasicAuth(self.username, self.password))
         self._result = json.loads(response.text)
-
         return self
 
     def delete_index(self):
         if self.exists():
-            self._result = self.es.indices.delete(self.index)
+            self._result = self.api_index().delete()
         return self
 
     def delete_index_pattern(self):
@@ -250,13 +267,13 @@ class Elastic_Search:
         return results
 
     def index_list(self):
-        return set(self.es.indices.get_alias())
+        return self.api_index().list_names()#
 
     def info(self):
         return self.es.info()
 
     def exists(self):
-        return self.es.indices.exists(self.index)
+        return self.api_index().exists()
 
     def get_index(self):
         return self.index
