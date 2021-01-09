@@ -13,4 +13,5 @@ class test_View_Rest_Calls(TestCase):
             print()
             elastic.index_list()
             elastic.exists()
+        view_rest_calls.print_calls_made()
 
