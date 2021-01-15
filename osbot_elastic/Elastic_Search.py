@@ -3,6 +3,7 @@ import  datetime
 import  requests
 from    elasticsearch                           import Elasticsearch, helpers, NotFoundError
 from    osbot_aws.apis.Secrets                  import Secrets
+from osbot_utils.decorators.methods.cache_on_self import cache_on_self
 from    requests.auth                           import HTTPBasicAuth
 from    osbot_utils.utils.Http                  import DELETE
 # todo: find long term solution for this (including being able to detect it)
@@ -29,6 +30,7 @@ class Elastic_Search:
         if index and aws_secret_id:
             self._setup_Elastic_on_cloud_via_AWS_Secret(index, aws_secret_id)
 
+    @cache_on_self
     def api_index(self):
         return Index(self.es, self.index)
 
