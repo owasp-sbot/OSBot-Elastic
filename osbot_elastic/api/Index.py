@@ -7,7 +7,7 @@ from osbot_utils.utils.Misc import random_string
 class Index:
     def __init__(self,es : Elasticsearch, index_id=None):
         self.es = es
-        self.index_id = index_id or random_string(prefix='index_')
+        self.index_id = index_id or random_string(prefix='temp_index_').lower()
 
     def create(self,body=None):
         if self.exists() is False:

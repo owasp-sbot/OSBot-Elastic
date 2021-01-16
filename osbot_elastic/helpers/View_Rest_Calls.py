@@ -53,7 +53,6 @@ class View_Rest_Calls:
         self.wrap_target_method()
         return self
 
-
     def stop(self):
         self.unwrap_target_method()
         return self

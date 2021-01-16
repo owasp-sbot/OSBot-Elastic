@@ -1,27 +1,18 @@
 
-#from osbot_aws.helpers.Test_Helper import Test_Helper
 from pprint import pprint
-from unittest import TestCase
-
 from osbot_elastic.Elastic_Search import Elastic_Search
+from osbot_elastic.helpers.TestCase_Index import TestCase_Index
 
-#Test_Helper
-class Test_Elastic_Search(TestCase):
+
+class Test_Elastic_Search(TestCase_Index):
 
     def setUp(self):
-        self.index     = 'test-index'
         #self.secret_id = 'gw-elastic-server-1'
-
-        self.elastic = Elastic_Search(self.index)._setup_using_env_variables()#, aws_secret_id=self.secret_id)
-        self.result = None
-
-    def tearDown(self) -> None:
-        if self.result is not None:
-            pprint(self.result)
+        self.elastic = Elastic_Search(self.index_id)._setup_using_env_variables()
 
     def test__setup_using_env_variables(self):
-        #self.elastic.setup_using_env_variables()
         assert '.opendistro_security' in self.elastic.index_list()
+        assert self.index_id          in self.elastic.index_list()
 
     def test_add(self):
         pass

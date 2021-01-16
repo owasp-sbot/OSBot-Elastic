@@ -17,13 +17,13 @@ class test_View_Rest_Calls(TestCase):
             assert len(view_rest_calls.calls) == 1
             elastic.exists()
             assert len(view_rest_calls.calls) == 2
+
         view_rest_calls.print_calls_made()
 
         calls = builtins_print.mock_calls
 
         assert len(calls) == 8
 
-        pprint(calls)
         assert calls[0] == call()
         assert calls[1] == call('#######################################################')
         assert calls[2] == call('##### REST calls made to Elastic Server           #####')
@@ -33,5 +33,16 @@ class test_View_Rest_Calls(TestCase):
         assert calls[6] == call("GET      /_cat/indices        {'format': b'json'}")
         assert calls[7] == call(f'HEAD     /{elastic.api_index().index_id}        {{}}        ')
 
+        builtins_print.mock_calls.clear()
+        view_rest_calls.print_calls_made(print_calls=False, print_return_value=True)
 
+        assert calls[4] == call()
+        assert calls[6] == call()
+        assert calls[7] == call(False)
+        assert calls[8] == call()
+
+        assert len(view_rest_calls.calls) == 2
+        assert view_rest_calls.calls[0].get('url') == '/_cat/indices'
+        assert view_rest_calls.calls[1].get('url') == f'/{elastic.index}'
+        assert view_rest_calls.calls[1].get('url') == f'/{elastic.api_index().index_id}'
 

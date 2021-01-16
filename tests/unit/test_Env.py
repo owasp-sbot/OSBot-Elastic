@@ -15,4 +15,4 @@ class test_Env(TestCase):
         assert type(os.environ['ELASTIC_PASSWORD'     ]) is str
 
     def test_get_elastic_server_config(self):
-        assert set(self.env.get_elastic_server_config()) == {'host', 'password', 'username', 'port'}
+        assert sorted(set(self.env.get_elastic_server_config())) == ['host', 'kibana', 'password', 'port', 'username']

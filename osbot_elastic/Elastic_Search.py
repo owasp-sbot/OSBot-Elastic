@@ -15,6 +15,7 @@ from    osbot_utils.utils.Http                  import DELETE
 # }
 from osbot_elastic.Env import Env
 from osbot_elastic.api.Index import Index
+from osbot_elastic.elastic.ES import ES
 
 
 class Elastic_Search:
@@ -32,7 +33,9 @@ class Elastic_Search:
 
     @cache_on_self
     def api_index(self):
-        return Index(self.es, self.index)
+        api_index = Index(self.es, self.index)
+        self.index = api_index.index_id                 # handle fact that in this api index variable was used to hold the index_id
+        return api_index
 
 
     #todo refactor these setup methods
@@ -54,23 +57,20 @@ class Elastic_Search:
         return self
 
     def _setup_Elastic_on_cloud(self, host, port, username, password):
-        self.host     = host
-        self.port     = port
-        self.username = username
-        self.password = password
-        self.scheme   = 'https'
-        self.es       = Elasticsearch([host], http_auth=(username, password),scheme="https", port=port)
+        self.host          = host
+        self.port          = port
+        self.username      = username
+        self.password      = password
+        self.scheme        = 'https'
+        self.es       = Elasticsearch([host],
+                                      http_auth=(username, password),
+                                      scheme="https",
+                                      port=port)
         return self
 
+    # todo refactor to ES class
     def _setup_using_env_variables(self):
-        server_config   = Env().get_elastic_server_config()
-        self.host       = server_config['host'    ]
-        self.kibana     = server_config['kibana'  ]
-        self.username   = server_config['username']
-        self.password   = server_config['password']
-        self.port       = server_config['port'    ]
-        self.scheme     = 'https'
-        self.es = Elasticsearch([self.host], http_auth=(self.username, self.password), scheme="https", port=self.port)
+        self.es = ES().setup()
         return self
 
     def add_data_with_timestamp(self,data):
