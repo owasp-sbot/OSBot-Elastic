@@ -15,7 +15,7 @@ class test_ES_Docker(TestCase):
         assert type(self.es_docker.client).__name__ == 'DockerClient'
 
     def test_container_run(self):
-        assert '__Hello from Docker!'  in self.es_docker.container_run('hello-world')
+        assert 'Hello from Docker!'  in self.es_docker.container_run('hello-world')
 
     def test_containers(self):
         assert type(self.es_docker.containers()) is list            # todo once we create a container per execution change this to reflect that
@@ -24,5 +24,3 @@ class test_ES_Docker(TestCase):
         server_info = self.es_docker.server_info()
         assert 'KernelMemory' in server_info
         assert lower(server_info.get('OSType'        )) == 'linux'
-        assert lower(server_info.get('ProductLicense')) == 'community engine'
-        assert       server_info.get('ServerVersion' )  == '19.03.13'
