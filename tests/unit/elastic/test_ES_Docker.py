@@ -21,10 +21,10 @@ class test_ES_Docker(TestCase):
         assert type(self.es_docker.containers()) is list            # todo once we create a container per execution change this to reflect that
 
     def test_server_info(self):
-        assert sorted_set(self.es_docker.server_info()) == ['Architecture', 'BridgeNfIp6tables', 'BridgeNfIptables', 'CPUSet', 'CPUShares', 'CgroupDriver', 'ClusterAdvertise', 'ClusterStore', 'ContainerdCommit',
-                                                            'Containers', 'ContainersPaused', 'ContainersRunning', 'ContainersStopped', 'CpuCfsPeriod', 'CpuCfsQuota', 'Debug', 'DefaultRuntime', 'DockerRootDir',
-                                                            'Driver', 'DriverStatus', 'ExperimentalBuild', 'GenericResources', 'HttpProxy', 'HttpsProxy', 'ID', 'IPv4Forwarding', 'Images', 'IndexServerAddress',
-                                                            'InitBinary', 'InitCommit', 'Isolation', 'KernelMemory', 'KernelMemoryTCP', 'KernelVersion', 'Labels', 'LiveRestoreEnabled', 'LoggingDriver', 'MemTotal',
-                                                            'MemoryLimit', 'NCPU', 'NEventsListener', 'NFd', 'NGoroutines', 'Name', 'NoProxy', 'OSType', 'OomKillDisable', 'OperatingSystem', 'PidsLimit', 'Plugins',
-                                                            'ProductLicense', 'RegistryConfig', 'RuncCommit', 'Runtimes', 'SecurityOptions', 'ServerVersion', 'SwapLimit', 'Swarm', 'SystemStatus', 'SystemTime', 'Warnings']
+        server_info = self.es_docker.server_info()
+        assert 'KernelMemory' in server_info
+        assert server_info.get('OSType'        ) == 'Linux'
+        assert server_info.get('ProductLicense') == 'Community Engine'
+        assert server_info.get('ServerVersion' ) == '19.03.13'
 
+        pprint(self.es_docker.server_info())
