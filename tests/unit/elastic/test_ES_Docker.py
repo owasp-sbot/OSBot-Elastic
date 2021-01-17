@@ -20,6 +20,14 @@ class test_ES_Docker(TestCase):
     def test_containers(self):
         assert type(self.es_docker.containers()) is list            # todo once we create a container per execution change this to reflect that
 
+    def test_images(self):
+        images = self.es_docker.images()
+        assert len(images) > 0
+
+    def test_images_names(self):
+        names = self.es_docker.images_names()
+        assert 'hello-world:latest' in names
+
     def test_server_info(self):
         server_info = self.es_docker.server_info()
         assert 'KernelMemory' in server_info

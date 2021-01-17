@@ -14,3 +14,8 @@ class Env():
                     "username": environ.get('ELASTIC_USERNAME'),
                     "password": environ.get('ELASTIC_PASSWORD')
                 }
+
+    def get_docker_images_config(self):
+        return {
+                    "elastic_search" : environ.get('DOCKER_IMAGE_ELASTIC_SEARCH')
+        }

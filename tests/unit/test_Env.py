@@ -16,3 +16,6 @@ class test_Env(TestCase):
 
     def test_get_elastic_server_config(self):
         assert sorted(set(self.env.get_elastic_server_config())) == ['host', 'kibana', 'password', 'port', 'username']
+
+    def test_get_docker_images_config(self):
+        assert self.env.get_docker_images_config() == { 'elastic_search': 'docker.elastic.co/elasticsearch/elasticsearch:7.10.1' }
