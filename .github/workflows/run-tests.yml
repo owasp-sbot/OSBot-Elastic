@@ -24,8 +24,8 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          #pytest -v --durations=0 --cov=function_hello_world tests
-          pytest -v --durations=0 --cov=function_hello_world tests/unit/elastic/test_ES_Docker.py
+          #pytest -v --durations=0 --cov=osbot_elastic tests
+          pytest -v --durations=0 --cov=osbot_elastic tests/unit/elastic/test_ES_Docker.py
           coveralls
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
