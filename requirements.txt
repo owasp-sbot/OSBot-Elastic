@@ -4,7 +4,8 @@ boto3
 git+https://github.com/owasp-sbot/OSBot-Utils.git
 git+https://github.com/owasp-sbot/OSBot-AWS.git
 
-# for development
+# for testing
 pytest
 pytest-cov
 coveralls
+docker
