@@ -13,8 +13,7 @@ from    osbot_utils.utils.Http                  import DELETE
 # {
 # "index.max_result_window" : "100000"
 # }
-from osbot_elastic.Env import Env
-from osbot_elastic.api.Index import Index
+from osbot_elastic.elastic.Index import Index
 from osbot_elastic.elastic.ES import ES
 
 

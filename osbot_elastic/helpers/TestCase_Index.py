@@ -1,9 +1,6 @@
 from unittest import TestCase
 
-from osbot_utils.utils.Misc import random_string
-
-from osbot_elastic.Elastic_Search import Elastic_Search
-from osbot_elastic.api.Index import Index
+from osbot_elastic.elastic.Index import Index
 from osbot_elastic.elastic.ES import ES
 
 
