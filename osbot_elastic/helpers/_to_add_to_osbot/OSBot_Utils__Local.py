@@ -4,7 +4,17 @@ def bytes_to_string(bytes, encoding='ascii'):
         return bytes.decode(encoding=encoding)
     return ""
 
-def sorted_set(target):
+def lower(target : str):
+    if(target):
+        return target.lower()
+    return ""
+
+def sorted_set(target : object):
     if target:
         return sorted(set(target))
     return []
+
+def upper(target : str):
+    if(target):
+        return target.upper()
+    return ""
