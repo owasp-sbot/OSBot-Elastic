@@ -56,16 +56,16 @@ class Elastic_Search:
         self._setup_Elastic_on_cloud(self.host, port, username, password)
         return self
 
-    def _setup_Elastic_on_cloud(self, host, port, username, password):
+    def _setup_Elastic_on_cloud(self, host, port, username, password,scheme='https'):
         self.host          = host
         self.port          = port
         self.username      = username
         self.password      = password
-        self.scheme        = 'https'
-        self.es       = Elasticsearch([host],
-                                      http_auth=(username, password),
-                                      scheme="https",
-                                      port=port)
+        self.scheme        = scheme
+        self.es       = Elasticsearch(hosts     = [host],
+                                      http_auth = (username, password),
+                                      scheme    = self.scheme,
+                                      port      = port)
         return self
 
     # todo refactor to ES class
@@ -77,14 +77,14 @@ class Elastic_Search:
         data["@timestamp"] = self.timestamp
         return self.es.index(index=self.index, doc_type='item', body=data)
 
-    def add(self,data, id_key = None):
+    def add(self,data, id_key = None, refresh=False):
         if data is None or data == {}:
             return {'error': 'no data provided to send to ELK'}
         try:
             if id_key is not None:
                 return self.es.index(index=self.index, doc_type='item', body=data, id=data[id_key])
             else:
-                return self.es.index(index=self.index, doc_type='item', body=data)
+                return self.es.index(index=self.index, doc_type='item', body=data, refresh=refresh)
         except Exception as error:
             message = f'in Elastic_Search:add_data_with_timestamp: {error}'
             print(message)
