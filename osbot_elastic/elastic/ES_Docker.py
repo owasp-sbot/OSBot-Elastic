@@ -1,6 +1,6 @@
 import docker
 
-from osbot_elastic.helpers._to_add_to_osbot.OSBot_Utils__Local import bytes_to_string
+from osbot_elastic.helpers._to_add_to_osbot.OSBot_Utils__Local import bytes_to_string, trim
 
 
 class ES_Docker:
@@ -10,13 +10,16 @@ class ES_Docker:
 
     def container_run(self, image, command=None):
         output = self.client.containers.run(image, command)
-        return bytes_to_string(output)
+        return trim(bytes_to_string(output))
 
     def containers(self):
         return self.client.containers.list()
 
     def image_elastic_search(self):
         return
+
+    def image_pull(self, repository, tag):
+        return self.client.images.pull(repository, tag)
 
     def images(self):
         return self.client.images.list()

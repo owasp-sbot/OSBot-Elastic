@@ -17,5 +17,6 @@ class Env():
 
     def get_docker_images_config(self):
         return {
-                    "elastic_search" : environ.get('DOCKER_IMAGE_ELASTIC_SEARCH')
-        }
+                    "elastic_search" : { 'repository' : environ.get('DOCKER_IMAGE_ELASTIC_SEARCH'),
+                                         'tag'        : environ.get('DOCKER_TAG_ELASTIC_SEARCH'  ) }
+               }

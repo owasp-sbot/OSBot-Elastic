@@ -5,7 +5,7 @@ def bytes_to_string(bytes, encoding='ascii'):
     return ""
 
 def lower(target : str):
-    if(target):
+    if target:
         return target.lower()
     return ""
 
@@ -14,7 +14,12 @@ def sorted_set(target : object):
         return sorted(set(target))
     return []
 
+def trim(target : str):
+    if target:
+        return target.strip()
+    return ""
+
 def upper(target : str):
-    if(target):
+    if target:
         return target.upper()
     return ""

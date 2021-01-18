@@ -3,12 +3,10 @@ from unittest import TestCase
 from osbot_elastic.elastic.Index import Index
 from osbot_elastic.elastic.ES import ES
 
-
 class TestCase_Index(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-
         cls.es       = ES().setup()
         cls.index    = Index(es=cls.es)
         cls.index_id = cls.index.index_id
