@@ -15,8 +15,10 @@ class Test_Elastic_Search(TestCase_Index):
         assert self.index_id          in self.elastic.index_list()
 
     def test_add(self):
-        pass
-        # self.elastic.add({'answer':42})
+        self.elastic.add({'answer': 42}, refresh=True)
+        data = self.elastic.get_data_First_10()
+        print()
+        pprint(list(data))
 
     def test_create_index_delete_index_list_index(self):
         assert self.index not in self.elastic.index_list()

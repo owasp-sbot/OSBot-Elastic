@@ -1,4 +1,3 @@
-from pprint import pprint
 from unittest import TestCase
 
 from osbot_elastic.Env import Env
@@ -45,5 +44,3 @@ class test_ES_Docker(TestCase):
         server_info = self.es_docker.server_info()
         assert 'KernelMemory' in server_info
         assert lower(server_info.get('OSType')) == 'linux'
-
-
