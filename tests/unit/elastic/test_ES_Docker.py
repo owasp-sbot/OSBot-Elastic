@@ -31,11 +31,12 @@ class test_ES_Docker(TestCase):
     def test_image_pull(self):
         images_config      = Env().get_docker_images_config()
         image_config       = images_config.get('elastic_search')
-        (repository, tag)   = (image_config.get('repository'), image_config.get('tag'))
+        (repository, tag)  = (image_config.get('repository'), image_config.get('tag'))
         image_name         = f"{repository}:{tag}"
 
         image              = self.es_docker.image_pull(repository, tag)
-        assert image.tags == ['docker.elastic.co/elasticsearch/elasticsearch:7.10.1', 'elasticsearch:7.10.1']
+        
+        assert  'docker.elastic.co/elasticsearch/elasticsearch:7.10.1' in image.tags
 
 
         assert self.es_docker.container_run(image_name,"pwd") == "/usr/share/elasticsearch"
