@@ -1,3 +1,4 @@
+from pprint import pprint
 from unittest import TestCase
 
 from osbot_elastic.Env import Env
@@ -14,32 +15,13 @@ class test_ES_Docker(TestCase):
     def test__init__(self):
         assert type(self.es_docker.client).__name__ == 'DockerClient'
 
-    def test_container_run(self):
-        assert 'Hello from Docker!'  in self.es_docker.container_run('hello-world')
-
-    def test_containers(self):
-        assert type(self.es_docker.containers()) is list            # todo once we create a container per execution change this to reflect that
-
-    def test_images(self):
-        images = self.es_docker.images()
-        assert len(images) > 0
-
-    def test_images_names(self):
-        names = self.es_docker.images_names()
-        assert 'hello-world:latest' in names
-
-    def test_image_pull(self):
-        images_config      = Env().get_docker_images_config()
-        image_config       = images_config.get('elastic_search')
-        (repository, tag)  = (image_config.get('repository'), image_config.get('tag'))
-        image_name         = f"{repository}:{tag}"
-
-        image              = self.es_docker.image_pull(repository, tag)
-        
-        assert  'docker.elastic.co/elasticsearch/elasticsearch:7.10.1' in image.tags
 
 
-        assert self.es_docker.container_run(image_name,"pwd") == "/usr/share/elasticsearch"
+    def test_download_image_elastic_search(self):
+        assert self.es_docker.download_image_elastic_search() is True
+
+        #assert  'docker.elastic.co/elasticsearch/elasticsearch:7.10.1' in image.tags
+        #assert self.es_docker.container_run(repository, tag,"pwd") == {'output': '/usr/share/elasticsearch', 'status': 'ok'}
 
     def test_server_info(self):
         server_info = self.es_docker.server_info()
