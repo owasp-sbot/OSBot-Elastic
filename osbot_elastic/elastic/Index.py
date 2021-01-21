@@ -1,4 +1,4 @@
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, helpers
 from elasticsearch.helpers import scan
 from osbot_utils.decorators.lists.group_by import group_by
 from osbot_utils.decorators.lists.index_by import index_by
@@ -6,12 +6,19 @@ from osbot_utils.utils.Misc import random_string
 
 
 class Index:
-    def __init__(self, es : Elasticsearch, index_id=None):
+    def __init__(self, es : Elasticsearch, index_id=None, pipeline=None):
         self.es       = es
         self.doc_type = 'item'
         self.index_id  = index_id or random_string(prefix='temp_index_').lower()
+        self.pipeline  = pipeline
 
-    def add(self,data, id_key = None, refresh=False):
+    def add(self,data, id_key = None, refresh=True):
+        if type(data) is list:
+            return self.add_many(data=data, id_key=id_key,refresh=refresh)
+        else:
+            return self.add_one(data=data, id_key=id_key, refresh=refresh)
+
+    def add_one(self,data, id_key = None, refresh=False):           # todo: add support for pipeline
         if data is None or data == {}:
             return {'error': 'no data provided to send to ELK'}
         try:
@@ -23,6 +30,23 @@ class Index:
             message = f'in Elastic_Search:add: {error}'
             print(message)
             return {"elk-error": "{0}".format(message)}
+
+    def add_many(self,data, id_key = None, refresh=False):
+        ok = 0
+        actions = []
+        for item in data:
+            item_data = {   "_index" : self.index_id ,
+                            "_type"  : self.doc_type ,
+                            "_source": item          }
+            if id_key is not None:
+                item_data["_id"] = item[id_key]
+            actions.append(item_data)
+
+        if self.pipeline is None:
+            ok, _ = helpers.bulk(self.es, actions, index=self.index_id, refresh=refresh)
+        else:
+            ok, _ = helpers.bulk(self.es, actions, index=self.index_id, refresh=refresh, pipeline=self.pipeline)
+        return ok
 
     def create(self,body=None):
         if self.exists() is False:

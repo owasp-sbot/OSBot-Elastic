@@ -76,8 +76,10 @@ class Elastic_Search:
         data["@timestamp"] = self.timestamp
         return self.es.index(index=self.index, doc_type='item', body=data)
 
-    def add(self,data, id_key = None, refresh=False):
-        return self.api_index().add(data, id_key, refresh)
+    def add(self,data, id_key = None, pipeline=None, refresh=True):
+        api_index = self.api_index()
+        api_index.pipeline = pipeline
+        return api_index.add(data=data, id_key=id_key, refresh=refresh)
         # if data is None or data == {}:
         #     return {'error': 'no data provided to send to ELK'}
         # try:
@@ -90,25 +92,26 @@ class Elastic_Search:
         #     print(message)
         #     return {"elk-error": "{0}".format(message)}
 
-    def add_bulk(self, data, id_key = None, pipeline = None):
-        ok = 0
-        if data:
-            actions = []
-            for item in data:
-                item_data = {
-                                "_index": self.index,
-                                "_type": 'item',
-                                "_source": item,
-                            }
-                if id_key is not None:
-                    item_data["_id"] = item[id_key]
-                actions.append(item_data)
-
-            if pipeline is None:
-                ok, _ = helpers.bulk(self.es, actions, index=self.index)
-            else:
-                ok, _ = helpers.bulk(self.es, actions, index=self.index, pipeline=pipeline)
-        return ok
+    def add_bulk(self, data, id_key = None, pipeline = None, refresh=True):
+        return self.api_index().add(data, id, pipeline, refresh)
+        # ok = 0
+        # if data:
+        #     actions = []
+        #     for item in data:
+        #         item_data = {
+        #                         "_index": self.index,
+        #                         "_type": 'item',
+        #                         "_source": item,
+        #                     }
+        #         if id_key is not None:
+        #             item_data["_id"] = item[id_key]
+        #         actions.append(item_data)
+        #
+        #     if pipeline is None:
+        #         ok, _ = helpers.bulk(self.es, actions, index=self.index)
+        #     else:
+        #         ok, _ = helpers.bulk(self.es, actions, index=self.index, pipeline=pipeline)
+        # return ok
 
     def create_index(self,body = None):
         if self.exists() is False:
