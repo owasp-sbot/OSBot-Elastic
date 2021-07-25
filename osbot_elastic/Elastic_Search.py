@@ -19,7 +19,7 @@ from osbot_elastic.elastic.ES import ES
 
 class Elastic_Search:
     def __init__(self, index, aws_secret_id = None):
-        self.timestamp      = datetime.datetime.utcnow()
+        #self.timestamp      = datetime.datetime.utcnow()
         self.index          = index
         self._setup_Elastic_on_localhost()                  # default to localhost
         self.kibana         = None
@@ -72,11 +72,11 @@ class Elastic_Search:
         self.es = ES().setup()
         return self
 
-    def add_data_with_timestamp(self,data):
-        data["@timestamp"] = self.timestamp
-        return self.es.index(index=self.index, doc_type='item', body=data)
+    def add_data_with_timestamp(self,data, refresh=False):
+        data["@timestamp"] = datetime.datetime.utcnow() #self.timestamp
+        return self.es.index(index=self.index, doc_type='item', body=data, refresh=refresh)
 
-    def add(self,data, id_key = None, pipeline=None, refresh=True):
+    def add(self,data, id_key = None, pipeline=None, refresh=False):
         api_index = self.api_index()
         api_index.pipeline = pipeline
         return api_index.add(data=data, id_key=id_key, refresh=refresh)

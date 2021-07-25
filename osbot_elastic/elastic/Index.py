@@ -12,7 +12,7 @@ class Index:
         self.index_id  = index_id or random_string(prefix='temp_index_').lower()
         self.pipeline  = pipeline
 
-    def add(self,data, id_key = None, refresh=True):
+    def add(self,data, id_key = None, refresh=False):
         if type(data) is list:
             return self.add_many(data=data, id_key=id_key,refresh=refresh)
         else:
