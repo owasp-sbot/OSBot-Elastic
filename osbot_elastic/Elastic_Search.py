@@ -147,7 +147,7 @@ class Elastic_Search:
 
     def delete_index(self):
         if self.exists():
-            self._result = self.api_index().delete()
+            self._result = self.api_index().delete_index()
         return self
 
     def delete_index_pattern(self):
