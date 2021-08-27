@@ -35,8 +35,8 @@ class Save_To_ELK():
     def find_documents_of_type(self, dock_type):
         return self.find_documents("doc_type:{0}".format(dock_type))
 
-    def delete_documents_with_id(self, doc_id):
-        return self.elastic.delete_data_by_id(doc_id)
+    def delete_documents_with_id(self, doc_id, refresh=False):
+        return self.elastic.delete_data_by_id(doc_id,refresh=refresh)
 
     def delete_documents_with_type(self, doc_type):
         keys = self.find_documents_of_type(doc_type).keys()

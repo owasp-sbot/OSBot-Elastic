@@ -23,9 +23,9 @@ class Index:
             return {'error': 'no data provided to send to ELK'}
         try:
             if id_key is not None:
-                return self.es.index(index=self.index_id, doc_type=self.doc_type, body=data, refresh=refresh, id=data[id_key])
+                return self.es.index(index=self.index_id, body=data, refresh=refresh, id=data[id_key])
             else:
-                return self.es.index(index=self.index_id, doc_type=self.doc_type, body=data, refresh=refresh                 )
+                return self.es.index(index=self.index_id, body=data, refresh=refresh                 )
         except Exception as error:
             message = f'in Elastic_Search:add: {error}'
             print(message)

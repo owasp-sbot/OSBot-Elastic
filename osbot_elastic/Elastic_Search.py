@@ -164,20 +164,20 @@ class Elastic_Search:
             self._result = { 'error':  error}
         return self
 
-    def delete_data_by_id(self, id):
+    def delete_data_by_id(self, id, refresh=False):
         try:
-            return self.es.delete(index=self.index, doc_type='item', id=id)
+            return self.es.delete(index=self.index, id=id, refresh=refresh)
         except Exception as error:
             return { 'error':  error }
 
     def get_data(self,id):
         try:
-            return self.es.get(index=self.index, doc_type='item', id=id)
+            return self.es.get(index=self.index, id=id)
         except NotFoundError:
             return None
 
     def get_many(self, ids):
-        data = self.es.mget(index=self.index, doc_type='item', body={'ids': ids})
+        data = self.es.mget(index=self.index, body={'ids': ids})
         results = {}
         for item in data['docs']:
             _id = item['_id']
