@@ -25,6 +25,7 @@ class Elastic_Search:
         self.kibana         = None
         self.host           = None
         self.port           = None
+        self.scheme         = None
         self._result        = None                          # used to cache some responses (for methods that return self)
 
         if index and aws_secret_id:
@@ -55,7 +56,7 @@ class Elastic_Search:
         self._setup_Elastic_on_cloud(self.host, port, username, password)
         return self
 
-    def _setup_Elastic_on_cloud(self, host, port, username, password,scheme='https'):
+    def _setup_Elastic_on_cloud(self, host, port, username, password, scheme='https'):
         self.host          = host
         self.port          = port
         self.username      = username
@@ -257,6 +258,9 @@ class Elastic_Search:
     def set_index_settings_total_fields(self,value):
         self.set_index_settings({"index.mapping.total_fields.limit": value})
         return self
+
+    def url(self):
+       return f'{self.scheme}://{self.host}:{self.port}'
 
     def delete_using_query(self, query):
         results = self.es.delete_by_query(index=self.index, body=query)
