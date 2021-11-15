@@ -80,20 +80,11 @@ class Elastic_Search:
         api_index = self.api_index()
         api_index.pipeline = pipeline
         return api_index.add(data=data, id_key=id_key, refresh=refresh)
-        # if data is None or data == {}:
-        #     return {'error': 'no data provided to send to ELK'}
-        # try:
-        #     if id_key is not None:
-        #         return self.es.index(index=self.index, doc_type='item', body=data, id=data[id_key])
-        #     else:
-        #         return self.es.index(index=self.index, doc_type='item', body=data, refresh=refresh)
-        # except Exception as error:
-        #     message = f'in Elastic_Search:add_data_with_timestamp: {error}'
-        #     print(message)
-        #     return {"elk-error": "{0}".format(message)}
 
     def add_bulk(self, data, id_key = None, pipeline = None, refresh=True):
-        return self.api_index().add(data, id, pipeline, refresh)
+        api_index = self.api_index()
+        api_index.pipeline = pipeline
+        return api_index.add(data=data, id_key=id_key, refresh=refresh)
         # ok = 0
         # if data:
         #     actions = []
@@ -217,9 +208,9 @@ class Elastic_Search:
             results[id] = value
         return results
 
-    def search_using_lucene_sort_by_date(self, query, size=100000):              # for syntax and examples of lucene queries see https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-query-string-query.html#query-string-syntax
+    def search_using_lucene_sort_by_date(self, query, size=100000, sort="date:desc"):     # todo need better solution for the use of 100000 , needed by one of the projects      # for syntax and examples of lucene queries see https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-query-string-query.html#query-string-syntax
         query = query.replace('“', '"').replace('”','"')                        # fix the quotes we receive from Slack
-        elk_results = self.es.search(index=self.index, q=query, size=size, sort= "date:desc")
+        elk_results = self.es.search(index=self.index, q=query, size=size, sort=sort)
         results = []
         for result in elk_results['hits']['hits']:
             id          = result['_id']
