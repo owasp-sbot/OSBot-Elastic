@@ -1,6 +1,7 @@
 import  json
 import  datetime
 import  requests
+from dotenv import load_dotenv
 from    elasticsearch                           import Elasticsearch, helpers, NotFoundError
 from    osbot_aws.apis.Secrets                  import Secrets
 from osbot_utils.decorators.methods.cache_on_self import cache_on_self
@@ -15,63 +16,84 @@ from    osbot_utils.utils.Http                  import DELETE
 # }
 from osbot_elastic.elastic.Index import Index
 from osbot_elastic.elastic.ES import ES
+from osbot_utils.utils.Misc import env_vars
 
 
 class Elastic_Search:
     def __init__(self, index, aws_secret_id = None):
         #self.timestamp      = datetime.datetime.utcnow()
         self.index          = index
-        self._setup_Elastic_on_localhost()                  # default to localhost
+        self.aws_secret_id  = aws_secret_id
         self.kibana         = None
         self.host           = None
         self.port           = None
         self.scheme         = None
         self._result        = None                          # used to cache some responses (for methods that return self)
-
-        if index and aws_secret_id:
-            self._setup_Elastic_on_cloud_via_AWS_Secret(index, aws_secret_id)
-
-    @cache_on_self
-    def api_index(self):
-        api_index = Index(self.es, self.index)
-        self.index = api_index.index_id                 # handle fact that in this api index variable was used to hold the index_id
-        return api_index
+        self.es             = None
+        #self._setup()
 
 
-    #todo refactor these setup methods
-    def _setup_Elastic_on_localhost(self):
+    def _setup(self):
+        if self._setup_elastic_on_cloud_via_aws_secret() is False:
+            if self._setup_elastic_using_env_vars() is False:
+                self._setup_elastic_on_localhost()
+        return self
+
+    # # todo refactor to ES class
+    # def _setup_using_env_variables(self):
+    #     self.es = ES().setup()
+    #     return self
+
+    def _setup_elastic_on_localhost(self):
         self.host   = 'localhost'
         self.port   = 9200
         self.scheme = 'http'
         self.es     = Elasticsearch([{'host': self.host, 'port': self.port}])
 
-    def _setup_Elastic_on_cloud_via_AWS_Secret(self,index, secret_id):
-        credentials = json.loads(Secrets(secret_id).value())
-        self.kibana = credentials.get('kibana')
-        self.host   = credentials['host']
-        username    = credentials['username']
-        password    = credentials['password']
-        port        = credentials['port']
-        self.index  = index
-        self._setup_Elastic_on_cloud(self.host, port, username, password)
-        return self
+    def _setup_elastic_on_cloud_via_aws_secret(self,):
+        index     = self.index
+        secret_id = self.aws_secret_id
+        if secret_id:
+            credentials = json.loads(Secrets(secret_id).value())
+            self.kibana = credentials.get('kibana')
+            self.host   = credentials['host']
+            username    = credentials['username']
+            password    = credentials['password']
+            port        = credentials['port']
+            self.index  = index
+            self._setup_Elastic_on_cloud(self.host, port, username, password)
+            return True
+        return False
 
-    def _setup_Elastic_on_cloud(self, host, port, username, password, scheme='https'):
-        self.host          = host
+    def _setup_elastic_using_env_vars(self):
+        load_dotenv()
+        vars     = env_vars()
+        username = vars.get('ELASTIC_USERNAME', 'elastic' )
+        password = vars.get('ELASTIC_PASSWORD'            )
+        server   = vars.get('ELASTIC_SERVER' , '127.0.0.1')
+        port     = vars.get('ELASTIC_PORT'   , '9200'     )
+        ssl_cert = vars.get('ELASTIC_SSL_CERT'            )
+        if username and server and port:
+            self._setup_Elastic_on_cloud(server=server, port = port, username=username, password=password)
+            return True
+        return False
+
+    def _setup_Elastic_on_cloud(self, server, port, username, password, scheme='https', ssl_cert=None):
+        self.server        = server
         self.port          = port
-        self.username      = username
-        self.password      = password
         self.scheme        = scheme
-        self.es       = Elasticsearch(hosts     = [host],
-                                      http_auth = (username, password),
-                                      scheme    = self.scheme,
-                                      port      = port)
+        self.host          = f"{scheme}://{self.server}:{self.port}"
+        ssl_cert           = ssl_cert
+        self.es            = Elasticsearch(hosts                  = [self.host],
+                                           http_auth              = (username, password),
+                                           ssl_assert_fingerprint = ssl_cert)
         return self
 
-    # todo refactor to ES class
-    def _setup_using_env_variables(self):
-        self.es = ES().setup()
-        return self
+    @cache_on_self
+    def api_index(self):
+        api_index = Index(self.es, self.index)
+        self.index = api_index.index_id                     # handle fact that in this api index variable was used to hold the index_id
+        return api_index
 
     def add_data_with_timestamp(self,data, refresh=False):
         data["@timestamp"] = datetime.datetime.utcnow() #self.timestamp
@@ -105,9 +127,9 @@ class Elastic_Search:
         #         ok, _ = helpers.bulk(self.es, actions, index=self.index, pipeline=pipeline)
         # return ok
 
-    def create_index(self,body = None):
+    def create_index(self,extra_kwargs = None):
         if self.exists() is False:
-            self._result = self.api_index().create(body)
+            self._result = self.api_index().create()
         return self
 
     def create_index_with_location_geo_point(self,field = "location"):
@@ -162,6 +184,12 @@ class Elastic_Search:
         except Exception as error:
             return { 'error':  error }
 
+    @cache_on_self
+    def elastic(self):          # use this to get a cached version of this class (Elastic_Search) that is fully configured
+        if self.es is None:
+            self._setup()
+        return self
+
     def get_data(self,id):
         try:
             return self.es.get(index=self.index, id=id)
@@ -192,6 +220,9 @@ class Elastic_Search:
         query = {"query": { "range": { field: { "gte": from_date,
                                                 "lt" : to_date     } }}}
         return list(self.search_using_query(query))
+
+    def last_execution_result(self):
+        return self._result
 
     def search_using_lucene(self, query, size=100000, sort = None):              # for syntax and examples of lucene queries see https://www.elastic.co/guide/en/elasticsearch/reference/6.4/query-dsl-query-string-query.html#query-string-syntax
         query = query.replace('“', '"').replace('”','"')                        # fix the quotes we receive from Slack

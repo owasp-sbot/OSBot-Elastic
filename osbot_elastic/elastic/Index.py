@@ -48,11 +48,12 @@ class Index:
             ok, _ = helpers.bulk(self.es, actions, index=self.index_id, refresh=refresh, pipeline=self.pipeline)
         return ok
 
-    def create(self,body=None):
+    def create(self,extra_kwargs=None):
         if self.exists() is False:
-            body = body or {}
-            return self.es.indices.create(index=self.index_id, body=body)
-        return { 'error':  f'index {self.index_id} already existed, nothind done'}
+            extra_kwargs = extra_kwargs or {}
+            #return self.es.indices.create(index=self.index_id, **extra_kwargs)
+            return self.es.indices.create(index=self.index_id, **extra_kwargs)
+        return { 'error':  f'index {self.index_id} already existed, nothing done'}
 
     def data(self, **kwargs):
         return self.data_query({"match_all": {}}, **kwargs)
@@ -71,11 +72,11 @@ class Index:
 
     def delete_index(self):
         if self.exists():
-            return self.es.indices.delete(self.index_id)
-        return { 'warning':  f"index {self.index_id} didn't exist, nothind done"}
+            return self.es.indices.delete(index=self.index_id)
+        return { 'warning':  f"index {self.index_id} didn't exist, nothing done"}
 
     def exists(self):
-        return self.es.indices.exists(self.index_id)
+        return self.es.indices.exists(index=self.index_id).body
 
     def info(self):
         data = self.es.indices.get(index=self.index_id)
