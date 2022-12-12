@@ -74,7 +74,7 @@ class Elastic_Search:
         port     = vars.get('ELASTIC_PORT'   , '9200'     )
         ssl_cert = vars.get('ELASTIC_SSL_CERT'            )
         if username and server and port:
-            self._setup_Elastic_on_cloud(server=server, port = port, username=username, password=password)
+            self._setup_Elastic_on_cloud(server=server, port = port, username=username, password=password,ssl_cert=ssl_cert)
             return True
         return False
 
@@ -108,6 +108,11 @@ class Elastic_Search:
         api_index = self.api_index()
         api_index.pipeline = pipeline
         return api_index.add(data=data, id_key=id_key, refresh=refresh)
+
+    def add_bulk_with_timestamp(self, data, id_key=None, pipeline=None, refresh=True):
+        for item in data:
+            item["@timestamp"] = datetime.datetime.utcnow()
+        return self.add_bulk(data, id_key=id_key, pipeline=pipeline, refresh=refresh)
         # ok = 0
         # if data:
         #     actions = []

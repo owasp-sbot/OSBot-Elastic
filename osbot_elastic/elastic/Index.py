@@ -36,7 +36,7 @@ class Index:
         actions = []
         for item in data:
             item_data = {   "_index" : self.index_id ,
-                            "_type"  : self.doc_type ,
+                            #"_type"  : self.doc_type ,
                             "_source": item          }
             if id_key is not None:
                 item_data["_id"] = item[id_key]
